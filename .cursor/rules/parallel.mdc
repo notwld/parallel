@@ -1,0 +1,39 @@
+---
+description: Shared Parallel project instructions, durable task handoff, and project skills
+alwaysApply: true
+---
+
+Read and follow AGENTS.md at the repository root.
+At session start, read docs/HANDOFF.md, docs/STATUS.md, docs/DECISIONS.md, and TASKS.md.
+Run python scripts/check_backlog.py, inspect current Git changes, and resume an in_progress task before starting new work.
+Update TASKS.md, docs/STATUS.md, and docs/WORKLOG.md as work proceeds and before stopping.
+Do not rely on prior chat history. Never expose canonical secrets or let model output directly change world state.
+
+## Must use the internet
+
+Before implementing a non-trivial task, **must** search the web for current best posible practices, docs, and proven approaches for that specific problem. Prefer official docs and recent high-signal sources over guessing from memory. Apply what you find only when it fits this repo’s stack and constraints; do not paste cargo-cult patterns.
+
+### Frontend / UI / UX
+For any frontend or design work, **must** also search for current UI/UX best possible practices for that surface (patterns, accessibility, layout, typography, interaction). Favor **minimal, non-redundant** UI: one job per section, no duplicate controls or copy, no decorative clutter. Prefer fewer elements that earn their place over dense dashboards or stacked cards.
+
+## Project skills (`.cursor/skills/`)
+
+These skills are installed in-repo and must stay tracked (do not gitignore `.cursor/skills`). Read the matching `SKILL.md` before doing the related work.
+
+### ponytail
+**Intensity is fixed to `full`** for this project. Use for coding tasks: writing, refactoring, fixing, reviewing, designing, or choosing dependencies. Prefer the laziest correct solution (YAGNI, reuse, stdlib, no unnecessary deps). Also when the user says "ponytail", "be lazy", "minimal", "yagni", or complains about over-engineering. Stop only on "stop ponytail" / "normal mode".
+
+### impeccable
+Use for frontend/UI/UX work: design, redesign, critique, audit, polish, animate, layout, typeset, harden, onboarding, empty states, and design-system work. Start with `/impeccable init` (or the skill's context launcher) when design context is missing. Prefer existing `docs/PRODUCT.md` / product truth over inventing brand direction. Combine with the internet + minimal-UI rules above. Not for backend-only tasks.
+
+### Spec Kit (`speckit-*`)
+Use Spec-Driven Development when creating or changing feature specs, plans, or task breakdowns—or when the user invokes `/speckit-*`:
+1. `/speckit-constitution` — project principles (`.specify/memory/constitution.md`)
+2. `/speckit-specify` — feature spec from a natural-language description
+3. `/speckit-clarify` — optional; de-risk ambiguities before planning
+4. `/speckit-plan` — technical implementation plan
+5. `/speckit-tasks` — actionable task breakdown
+6. `/speckit-implement` — execute implementation tasks
+7. `/speckit-analyze` / `/speckit-checklist` / `/speckit-converge` / `/speckit-taskstoissues` — as needed after planning
+
+Spec Kit scaffolds live under `.specify/`. Parallel's durable backlog in `TASKS.md` and handoff docs remain authoritative for day-to-day agent work; Spec Kit is for structured specify → plan → tasks → implement flows when requested or when a new feature needs that pipeline.
