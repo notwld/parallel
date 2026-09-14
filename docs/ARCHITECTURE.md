@@ -2,7 +2,7 @@
 
 ## What exists now
 
-`backend/config` configures Django/DRF, PostgreSQL, Celery, and the Redis channel layer. `backend/apps/accounts` contains the UUID account model and initial migration. `/api/v1/health/` is process liveness only. There are no domain APIs, worker jobs, or WebSocket consumers yet.
+`backend/config` configures Django/DRF, PostgreSQL, Celery, and the Redis channel layer. `backend/apps/accounts` contains the UUID account model. `backend/apps/worlds` and `backend/apps/characters` contain World, WorldMembership, RoleTemplate, Location, and Character. `/api/v1/health/` is process liveness; `/api/v1/ready/` checks PostgreSQL and Redis. `backend/common/ai/` has a fake provider and an unused OpenRouter LangGraph proposal graph (no tools); live calls require `OPENROUTER_API_KEY` and still wait on P019. There are no domain APIs, worker jobs, or WebSocket consumers yet.
 
 `frontend/src` is a React/TypeScript landing shell that checks API liveness. It contains public premise text only. `docker-compose.yml` runs PostgreSQL, Redis, one-shot migrations, API, worker, and frontend locally. The development web server proxies `/api` to the backend. Production serving, static admin assets, readiness, proxy headers, and deployment hardening belong to P001/P036 as specified in their tasks.
 

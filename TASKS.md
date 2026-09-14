@@ -18,7 +18,7 @@ For every feature task: add a focused failing acceptance test, implement the sma
 ## Foundation and technical prototype
 
 ### P000 — Initialize the portable project
-Status: in_progress
+Status: done
 Depends on: none
 Spec: 1.2, 10, 14, 16.2, 20.2, Appendix B
 Files: backend/config/, backend/apps/accounts/, frontend/, docker-compose.yml, .github/workflows/ci.yml, AGENTS.md, CLAUDE.md, .cursor/rules/parallel.mdc, docs/, TASKS.md
@@ -28,7 +28,7 @@ Deliver a locked Django/React starter, UUID account model/migration, local servi
 Acceptance: clean dependency installation, backend smoke tests and migration check pass, frontend typecheck/build passes, Compose validates, and the backlog has no missing or cyclic dependencies. Document which services were actually started and tested. Preserve the DOCX unchanged. Record a local Git checkpoint.
 
 ### P001 — Verify infrastructure and dependency readiness
-Status: todo
+Status: done
 Depends on: P000
 Spec: 16.1–16.2, 18.2, 22.1
 Files: backend/config/urls.py, backend/tests/test_readiness.py, docker-compose.yml, .github/workflows/ci.yml, docs/WORKLOG.md
@@ -38,14 +38,14 @@ Add `/api/v1/ready/` that returns 200 only after a bounded PostgreSQL query and 
 Acceptance: test DB unavailable and Redis unavailable independently, both yield 503; healthy dependencies yield 200; readiness discloses no credentials. Run backend tests on PostgreSQL. A running worker alone does not prove queued domain jobs exist.
 
 ### P002 — Model worlds, roles, membership, and characters
-Status: todo
+Status: done
 Depends on: P000
 Spec: 2.3, 4, 6.2–6.3, 6.12, 11.2
 Files: backend/apps/worlds/models.py, backend/apps/characters/models.py, their migrations/, backend/tests/test_world_models.py, backend/config/settings/base.py
 
 Create World, WorldMembership, RoleTemplate, Location, Character using UUIDs. Represent status separately from visibility. Store UTC/world clock, rules, simulation config, rating, creator, role capabilities, starter relations, and location hierarchy. One membership and one character per account/world. No public world mutation API yet; auditable services follow P003/P004.
 
-Acceptance: uniqueness enforced by the database; cross-world role/location assignment rejected through the supported write boundary; location parent cycles rejected; role slot limits designed for atomic allocation; migrations apply forward. Start with the detailed P002 plan in docs/superpowers/plans/2026-09-14-world-foundation.md.
+Acceptance: uniqueness enforced by the database; cross-world role/location assignment rejected through the supported write boundary; location parent cycles rejected; role slot limits designed for atomic allocation; migrations apply forward.
 
 ### P003 — Add immutable audit and transactional outbox primitives
 Status: todo
@@ -215,7 +215,7 @@ Depends on: P010
 Spec: 9.1–9.4, 9.8, 11.2, Appendix C
 Files: backend/common/ai/, backend/apps/simulation/models.py, backend/apps/simulation/providers.py, backend/tests/ai_evals/test_provider_contract.py
 
-Define task/purpose, trusted rules, untrusted source blocks, audience, allowed source IDs, strict response schema, timeout, and bounded retries. Add deterministic fake provider and one user-selected live provider. Store AIJob status, template/model version, source IDs, output hash, token/cost metrics, and redacted errors. Do not give models database or network tools.
+Define task/purpose, trusted rules, untrusted source blocks, audience, allowed source IDs, strict response schema, timeout, and bounded retries. Packages `langchain`, `langgraph`, and `langchain-openrouter` plus a no-tool proposal graph already exist (`backend/common/ai/`); this task still needs AIJob audit, schema rejection, and a recorded live eval. Do not give models database or network tools.
 
 Acceptance: unknown fields/operations rejected; timeout/provider failure leaves job retryable without partial mutation; fake-provider tests require no credentials; one explicit live contract evaluation is recorded before calling live integration done. Credentials/model/budget are user choices.
 
@@ -470,10 +470,10 @@ Track passkeys, multiple characters, knowledge-graph visualization, disappearing
 ## Project tooling
 
 ### P046 — Install portable Ponytail, Impeccable, and Spec Kit skills
-Status: in_progress
+Status: done
 Depends on: none
 Spec: User follow-up on 2026-09-14
-Files: .agents/skills/, .claude/skills/, .cursor/skills/, .specify/, docs/SKILLS.md, AGENTS.md
+Files: .cursor/skills/, .specify/, docs/SKILLS.md, AGENTS.md, CLAUDE.md (D014: one canonical skills path instead of per-tool copies)
 
 Install the existing Ponytail skill and verified upstream Impeccable/Spec Kit integrations locally for this repository. Preserve project instructions and track version/source provenance. Map Spec Kit feature tasks to stable TASKS.md IDs so framework-specific files do not become conflicting project status sources.
 

@@ -10,6 +10,16 @@ This repository is the durable project memory. Work must remain continuable with
 4. Set that task's status to `in_progress` in `TASKS.md`. Write its ID, intended changes, and immediate next step in `docs/STATUS.md` BEFORE implementing it.
 5. Work on one reviewable task at a time. This repository does not require any agent framework or installed skill package. Tools may use their own equivalent workflows.
 
+## Project skills
+
+Skill bodies are tracked in `.cursor/skills/` regardless of which tool reads them. Read the relevant `SKILL.md` before the matching work; outside Cursor they do not activate on their own. `docs/SKILLS.md` records versions, provenance, and commands.
+
+- `.cursor/skills/ponytail/SKILL.md` — any coding task. Prefer the laziest correct solution. Intensity is fixed to `full` here.
+- `.cursor/skills/impeccable/SKILL.md` — frontend and UI/UX work. Not for backend-only tasks.
+- `.cursor/skills/speckit-*/SKILL.md` and `.specify/` — spec-driven flow for new feature specs, plans, and task breakdowns.
+
+Before a nontrivial task, search the web for current documentation and practices for that specific problem, and for UI/UX patterns on frontend surfaces. Apply findings only where they fit this stack. Prefer minimal interfaces: one job per section, no duplicate controls or decorative clutter.
+
 ## Product and architecture
 
 - Latest explicit user direction takes precedence over derived plans. The original DOCX is the source specification; the Markdown transcription provides searchable text. `docs/PRODUCT.md` records the user's Earth-2097 direction and alpha scope.

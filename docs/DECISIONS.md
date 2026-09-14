@@ -10,13 +10,16 @@ Recorded 2026-09-14. These are working implementation defaults, not claims that 
 | D004 | One character per account per world. Powerful role slots are finite and allocated by moderator invitation for alpha. | Spec 6.3, 8.2; enforce at P002/P004. |
 | D005 | Same-origin browser deployment, HttpOnly session cookies, CSRF. Vite proxies API requests in development. | Spec 12.4. OAuth provider choice remains open at P004. |
 | D006 | Private notes and DMs do not enter simulation AI by default. Explicitly shared actions may. Moderator access is separate and audited. | Spec 9.5, 15.3; privacy disclosure at P017/P031. |
-| D007 | AI disabled until typed validation and audience projections exist. Use a deterministic fake provider in tests; choose a paid vendor at P019. | Spec 9, 20.3. No paid calls authorized by initialization. |
+| D007 | AI disabled until typed validation and audience projections exist. Deterministic fake provider when `OPENROUTER_API_KEY` is empty. OpenRouter is the chosen live vendor (D016); do not mark P019 done until the typed contract and a recorded live eval exist. | Spec 9, 20.3; user 2026-09-14. |
 | D008 | Major irreversible consequences require review. Initial proposal: severity >= 0.8 plus authored high-impact action classes; configurable per world. | Spec 6.9, 15.4. Threshold is a proposed default to review at P021/P030. |
 | D009 | UTC real timestamps plus explicit world time. Proposed clock starts at 2097-01-01 and progresses 1:1 while live, pauses when paused. | Spec 11.2, 21.2. Confirm pacing before P011 seed is finalized. |
 | D010 | Original DOCX remains unchanged. Ordered Markdown extraction is searchable source context. TASKS.md owns task status. | User request for cross-tool continuation. |
 | D011 | Implement secrets and provenance before the polished social feed. | Spec 20.3 is prioritized over the illustrative 12-week sequencing in 20.2. |
 | D012 | SQLite is allowed only for explicit fast test settings. Development/integration/production use PostgreSQL. | Transactional consistency requirements. |
-| D013 | No software license is selected on the user's behalf. Repository is local; no GitHub remote, public release, or deployment is created. | Ownership and publishing decisions remain with user. |
+| D013 | No software license is selected on the user's behalf. Remote is `https://github.com/notwld/parallel.git`; public/private and release remain the user's GitHub settings. | User asked to push on 2026-09-14. |
+| D014 | Skill bodies live only in `.cursor/skills/`. Codex and Claude Code reach them through `AGENTS.md`/`CLAUDE.md` pointers instead of copies in `.agents/skills/` and `.claude/skills/`. | P046. Copying Impeccable's reference tree and platform binary per tool triples a large tree for no behavioral gain. Revisit if a tool needs native auto-activation. |
+| D015 | `npm ci` is followed by `npm install --include=optional --no-save` in the frontend image and CI. | npm/cli#4828 intermittently skips the platform's native Rolldown binding, which made the frontend container exit at startup. Remove when npm fixes the bug. |
+| D016 | Live model access is OpenRouter through `langchain-openrouter` and a one-node LangGraph proposal graph with no tools. Default model `openai/gpt-4o-mini`. | User request 2026-09-14. `langgraph-sdk` pins `websockets<17`, so the lock uses 16.1.1. P019 still owns AIJob, schemas, and a live eval. |
 
 ## Questions that block their owning task, not initialization
 
@@ -24,7 +27,7 @@ Recorded 2026-09-14. These are working implementation defaults, not claims that 
 - **P011/P030:** confirm world clock, powerful role allocation, and how often system NPCs may knowingly circulate false claims. Default seed fixture should identify its public/claim/canonical layers explicitly.
 - **P017/P029/P031:** determine private-message moderation access and disclosure; select prompt/log, account, evidence, and moderation retention periods. Avoid copying raw private data into analytics or long-term model logs.
 - **P014/P029:** select object storage and scanning service before enabling uploads to users. Text-only development is acceptable; it does not fulfill alpha evidence-upload acceptance.
-- **P019/P023:** select AI model/provider and budget ceilings before enabling paid generation. Failed or paused generation must leave accepted actions recoverable.
+- **P019/P023:** OpenRouter is selected (D016). Still need typed validation, AIJob audit, budget ceilings, and a recorded live contract eval before calling P019 done. Failed or paused generation must leave accepted actions recoverable.
 - **P036/P037:** select hosting, domain, backup retention/RPO/RTO, and release access. Perform the spec's name/trademark/domain checks before public launch.
 
 ## Version references checked during initialization

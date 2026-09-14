@@ -15,6 +15,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'channels',
     'apps.accounts',
+    'apps.worlds',
+    'apps.characters',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -44,6 +46,7 @@ DATABASES = {'default': {
     'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
     'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
     'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+    'OPTIONS': {'connect_timeout': 2},
 }}
 AUTH_USER_MODEL = 'accounts.User'
 AUTH_PASSWORD_VALIDATORS = [
@@ -78,6 +81,9 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_IGNORE_RESULT = True
 CELERY_TIMEZONE = 'UTC'
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+OPENROUTER_API_KEY = os.environ.get('OPENROUTER_API_KEY', '')
+OPENROUTER_MODEL = os.environ.get('OPENROUTER_MODEL', 'openai/gpt-4o-mini')
+OPENROUTER_TIMEOUT_MS = int(os.environ.get('OPENROUTER_TIMEOUT_MS', '30000'))
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

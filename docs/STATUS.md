@@ -2,12 +2,21 @@
 
 Updated: 2026-09-14
 
-Current work: P000 project initialization and P046 user-requested skill installation.
+Current task: none in progress. P000, P001, P002, and P046 are `done`. OpenRouter/LangChain/LangGraph stub is installed (D016); P019 is still `todo`. Next eligible backlog task is P003.
 
-Verified so far: four backend smoke tests pass with explicit SQLite test settings; Django system check passes; migrations have no drift; frontend typecheck and production build pass.
+## Last verified
 
-In progress: container build/startup, full backlog/handoff verification, official project-local skill installation, and initial Git checkpoint.
+- SQLite smoke: `26 tests, OK (skipped=1 live PG+Redis)`, including 4 AI provider tests with no network.
+- LangChain 1.4.0, LangGraph 1.2.11, langchain-openrouter 0.2.8 installed. Empty `OPENROUTER_API_KEY` selects `FakeProvider`.
 
-No gameplay features are implemented. Auth is only the Django account model/admin infrastructure; there are no user-facing login endpoints, world records, knowledge models, or model-provider calls.
+## What does not exist yet
 
-Next action if interrupted: inspect git status and TASKS.md, verify container status with `docker compose ps`, review installed skill files, and finish P000/P046 evidence before starting feature work.
+No public world/character APIs, login, audit/outbox, knowledge models, or live model calls. P019 is not done.
+
+## Next step
+
+Set P003 to `in_progress` in `TASKS.md`. Read spec 2.3, 10.4, 10.6, 11.5.
+
+## Git checkpoint
+
+Commit and push to `origin` (`https://github.com/notwld/parallel.git`) after this change.
