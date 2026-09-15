@@ -48,7 +48,7 @@ Create World, WorldMembership, RoleTemplate, Location, Character using UUIDs. Re
 Acceptance: uniqueness enforced by the database; cross-world role/location assignment rejected through the supported write boundary; location parent cycles rejected; role slot limits designed for atomic allocation; migrations apply forward.
 
 ### P003 — Add immutable audit and transactional outbox primitives
-Status: todo
+Status: done
 Depends on: P002
 Spec: 2.3, 10.4, 10.6, 11.5
 Files: backend/apps/audit/models.py, backend/apps/events/models.py, backend/apps/events/services.py, backend/tests/test_event_atomicity.py
@@ -58,7 +58,7 @@ Create auditable change records and OutboxEvent with world, actor, cause, timest
 Acceptance: forced rollback leaves neither state nor outbox/audit writes; duplicate keys cannot create duplicate effects; ordinary app paths cannot edit or delete history; audit reads require privileged policy. Sequence allocation is safe under concurrent PostgreSQL transactions.
 
 ### P004 — Build authentication and audited onboarding APIs
-Status: todo
+Status: done
 Depends on: P002, P003
 Spec: 5.1, 6.1–6.3, 12.4–12.5
 Files: backend/apps/accounts/api.py, backend/apps/worlds/api.py, backend/apps/characters/services.py, backend/tests/test_onboarding.py
@@ -76,6 +76,8 @@ Files: backend/apps/organizations/models.py, backend/apps/organizations/policies
 Create organization types, memberships, roles/capabilities, public profiles, invitations, and audited role changes. Define object policies for active world membership and organization membership. Authorities must be rechecked on writes; neither client-supplied org identity nor a cached UI flag grants access.
 
 Acceptance: ordinary member cannot publish as leader, outsider cannot read internal records, revocation takes effect immediately, and every referenced character belongs to the organization's world. Concurrent leadership allocation obeys authored constraints.
+
+Note: Interrupted 2026-09-15 for user-requested Discord Stage 1 chat (P050–P055). Draft code may exist under `backend/apps/organizations/`; finish tests/migrations when resumed.
 
 ### P006 — Implement truth, claims, knowledge, and evidence metadata
 Status: todo
@@ -478,3 +480,67 @@ Files: .cursor/skills/, .specify/, docs/SKILLS.md, AGENTS.md, CLAUDE.md (D014: o
 Install the existing Ponytail skill and verified upstream Impeccable/Spec Kit integrations locally for this repository. Preserve project instructions and track version/source provenance. Map Spec Kit feature tasks to stable TASKS.md IDs so framework-specific files do not become conflicting project status sources.
 
 Acceptance: installed skill files and referenced templates/scripts exist; Codex, Cursor, and Claude Code have discoverable project integrations; installation has no unrelated global configuration edits; handoff explains commands, updates, and reload requirements. Record any intentionally unconfigured optional services separately from installed skills.
+
+## Realtime chat servers (account-scoped)
+
+Source design notes: `docs/source/discord.md` Stage 1 (D017). Product module is `apps/chat` (servers/channels/DMs)—do not brand as Discord. Not world-bound. Does not replace unfinished P017 world messaging; map later.
+
+### P050 — Install Daphne and Channels ASGI routing
+Status: done
+Depends on: P000
+Spec: docs/source/discord.md §46; Channels deploy docs
+Files: backend/requirements.txt, backend/Dockerfile, backend/config/asgi.py, backend/config/settings/base.py, docker-compose.yml
+
+Add Daphne; put `daphne` first in INSTALLED_APPS; ProtocolTypeRouter with HTTP + WebSocket (AllowedHostsOriginValidator + AuthMiddlewareStack). Serve backend via Daphne.
+
+Acceptance: health/ready work over Daphne; WS route loads without crash; Compose backend uses Daphne.
+
+### P051 — Guild, role bitfield, channel, and overwrite models + REST
+Status: done
+Depends on: P050, P004
+Spec: docs/source/discord.md §2–8, §33
+Files: backend/apps/chat/
+
+Snowflake IDs; Server, ServerMember, Role, MemberRole, Channel, ChannelPermissionOverwrite; create/list server and channels; permission resolution. Product names: server/channel (not Discord).
+
+Acceptance: owner has admin; member without SEND cannot send; outsider denied; migrations apply.
+
+### P052 — DM and group DM channels
+Status: done
+Depends on: P051
+Spec: docs/source/discord.md §5
+Files: backend/apps/chat/
+
+DmParticipant; open-or-create 1:1 DM; group DM create; messages share channel_id abstraction.
+
+Acceptance: only participants access DM; duplicate 1:1 open returns same channel.
+
+### P053 — Message timeline API in PostgreSQL
+Status: done
+Depends on: P052
+Spec: docs/source/discord.md §9, §46
+Files: backend/apps/chat/
+
+Message model with (channel_id, id DESC); send/list/edit/soft-delete; cursor before=id.
+
+Acceptance: authz on every write; timeline order by snowflake id; outsider cannot list.
+
+### P054 — Authorized channel WebSocket delivery
+Status: done
+Depends on: P053
+Spec: docs/source/discord.md; Channels AuthMiddlewareStack
+Files: backend/apps/chat/consumers.py, backend/apps/chat/routing.py
+
+Subscribe after membership check to `chat.channel.{id}`; broadcast message creates; REST catch-up.
+
+Acceptance: unauthorized subscribe rejected; authorized client receives broadcast; reconnect uses REST.
+
+### P055 — Invites, bans, read state, rate limits
+Status: done
+Depends on: P054
+Spec: docs/source/discord.md §18, §22–23, §38
+Files: backend/apps/chat/, backend/tests/test_chat_security.py
+
+Invite join, ServerBan, ReadState, basic send rate limit; security suite.
+
+Acceptance: banned user cannot join/send; invite works; outsider suite fails closed.

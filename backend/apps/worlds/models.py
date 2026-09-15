@@ -33,6 +33,7 @@ class World(models.Model):
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         related_name='created_worlds',
     )

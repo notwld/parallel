@@ -8,7 +8,7 @@ Recorded 2026-09-14. These are working implementation defaults, not claims that 
 | D002 | React + TypeScript + Vite, Python 3.14, Django 5.2 LTS, DRF, PostgreSQL 17, Redis 7.4, Celery, Channels. | Spec stack; versions are setup choices. Package locks contain resolved versions. Container patch tags float; pin image digests at P036. |
 | D003 | Earth-2097 is the flagship. User examples override the DOCX's illustrative Earth-1842 setting. | User direction; seed at P011. |
 | D004 | One character per account per world. Powerful role slots are finite and allocated by moderator invitation for alpha. | Spec 6.3, 8.2; enforce at P002/P004. |
-| D005 | Same-origin browser deployment, HttpOnly session cookies, CSRF. Vite proxies API requests in development. | Spec 12.4. OAuth provider choice remains open at P004. |
+| D005 | Same-origin browser deployment, HttpOnly session cookies, CSRF. Vite proxies API requests in development. OAuth provider and outbound email delivery are still unselected external prerequisites for P004; email/password session APIs ship without them. | Spec 12.4. OAuth provider choice remains open. |
 | D006 | Private notes and DMs do not enter simulation AI by default. Explicitly shared actions may. Moderator access is separate and audited. | Spec 9.5, 15.3; privacy disclosure at P017/P031. |
 | D007 | AI disabled until typed validation and audience projections exist. Deterministic fake provider when `OPENROUTER_API_KEY` is empty. OpenRouter is the chosen live vendor (D016); do not mark P019 done until the typed contract and a recorded live eval exist. | Spec 9, 20.3; user 2026-09-14. |
 | D008 | Major irreversible consequences require review. Initial proposal: severity >= 0.8 plus authored high-impact action classes; configurable per world. | Spec 6.9, 15.4. Threshold is a proposed default to review at P021/P030. |
@@ -20,6 +20,7 @@ Recorded 2026-09-14. These are working implementation defaults, not claims that 
 | D014 | Skill bodies live only in `.cursor/skills/`. Codex and Claude Code reach them through `AGENTS.md`/`CLAUDE.md` pointers instead of copies in `.agents/skills/` and `.claude/skills/`. | P046. Copying Impeccable's reference tree and platform binary per tool triples a large tree for no behavioral gain. Revisit if a tool needs native auto-activation. |
 | D015 | `npm ci` is followed by `npm install --include=optional --no-save` in the frontend image and CI. | npm/cli#4828 intermittently skips the platform's native Rolldown binding, which made the frontend container exit at startup. Remove when npm fixes the bug. |
 | D016 | Live model access is OpenRouter through `langchain-openrouter` and a one-node LangGraph proposal graph with no tools. Default model `openai/gpt-4o-mini`. | User request 2026-09-14. `langgraph-sdk` pins `websockets<17`, so the lock uses 16.1.1. P019 still owns AIJob, schemas, and a live eval. |
+| D017 | Stage-1 realtime chat (`apps/chat`) is account-scoped and world-agnostic. Server/channel/message IDs are snowflakes; people are UUID FKs to `accounts.User`. Messages live in PostgreSQL; Scylla/OpenSearch deferred. Daphne serves HTTP+WebSocket. Design notes live in `docs/source/discord.md`; product naming is chat/servers, not Discord. | User 2026-09-15. Revisit message store when timeline volume demands it. |
 
 ## Questions that block their owning task, not initialization
 

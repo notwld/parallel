@@ -54,3 +54,55 @@ User asked to add LangChain, LangGraph, and OpenRouter, then push to GitHub.
 - Recorded D016. P019 remains todo.
 - Changed paths: `backend/common/ai/`, `backend/tests/test_ai_provider.py`, `backend/requirements.txt`, `backend/requirements.in`, `backend/config/settings/base.py`, `.env.example`, `docs/DECISIONS.md`, `docs/ARCHITECTURE.md`, `docs/STATUS.md`, `docs/WORKLOG.md`, `TASKS.md`, `readme.md`.
 - Next exact action after push: P003.
+
+## 2026-09-15 — P003 completed
+
+Immutable audit + transactional outbox primitives.
+
+- `AuditRecord`: append-only (save/delete/QS update blocked), deletion-safe `actor_type`/`actor_id`/`actor_label` (no FK to User), unique `(world, idempotency_key)` and `(world, sequence)`. Staff-only `list_audit_for_world`.
+- `OutboxEvent`: same identity fields + delivery state; payload immutable; `mark_outbox_delivered` may update delivery fields only. Partial index on pending rows.
+- `WorldSequence` + `record_world_mutation`: one transaction locks the sequence row, optional `mutate()`, then writes audit+outbox. Same key/same payload returns originals; changed payload raises `IdempotencyConflict`.
+- Tests: SQLite 7 OK + 1 skip; Compose PostgreSQL 8/8 OK (concurrent sequences 1..8). Thread workers close connections so test DB teardown succeeds.
+- Skipped: django-pgtrigger / DB triggers (app write boundary only), Celery outbox relay (P009), public APIs.
+- Changed paths: `backend/apps/audit/`, `backend/apps/events/`, `backend/config/settings/base.py`, `backend/tests/test_event_atomicity.py`, `TASKS.md`, `docs/STATUS.md`, `docs/ARCHITECTURE.md`, `docs/WORKLOG.md`.
+- Next exact action: start P004. Set `in_progress`, read spec 5.1, 6.1–6.3, 12.4–12.5.
+
+## 2026-09-15 — P004 completed
+
+Session auth + audited world join/onboarding APIs.
+
+- Auth: CSRF bootstrap; signup/verify/login/logout/password-reset; preferences; session list/revoke; per-IP auth rate limit. Login CSRF enforced via `@csrf_protect` (not DRF anonymous bypass). OAuth returns empty providers (D005 prerequisite).
+- Worlds: public landing (claimable roles only); `POST .../join/` with Idempotency-Key; character profile omits account identity.
+- `join_world`: paused/invite-only/role-invite/slot checks; `SELECT FOR UPDATE` on role; membership+character via `record_world_mutation`.
+- Tests: SQLite onboarding 9 OK + concurrent skip; full suite 44 OK (3 skipped). PG: concurrent join keeps one slot holder; concurrent sequence still OK.
+- Skipped: real OAuth provider, production email (tokens returned in local responses), frontend screens (P013).
+- Changed paths: `backend/apps/accounts/`, `backend/apps/characters/services.py`, `backend/apps/worlds/api.py`, `backend/apps/worlds/urls.py`, `backend/apps/worlds/models.py`, `backend/config/urls.py`, `backend/config/settings/`, `backend/tests/test_onboarding.py`, `TASKS.md`, `docs/*`.
+- Next exact action: start P005 (organizations).
+
+## 2026-09-15 — P005 interrupted; Discord Stage 1 started
+
+User requested Daphne + Discord-like guilds/channels/DMs from `docs/source/discord.md` (Stage 1). P005 reset to `todo` (draft org models/services exist; no tests). Recorded D017. Backlog P050–P055.
+
+- Next exact action: P050 Daphne install, then P051–P055.
+
+## 2026-09-15 — P050–P055 completed (realtime chat)
+
+Account-scoped chat module `apps/chat` (product naming: servers/channels/DMs—not Discord). Stage 1 per design notes + D017.
+
+- Daphne 4.2.3; `daphne` first in INSTALLED_APPS; ProtocolTypeRouter HTTP+WS; Dockerfile CMD Daphne.
+- Models: Server, ServerMember, Role bitfield, Channel, overwrites, DmParticipant, Message (channel_id, id DESC), Invite, ServerBan, ReadState. Snowflake IDs.
+- REST `/api/v1/chat/…`; WS `/ws/chat/channels/<id>/` after VIEW_CHANNEL check; Redis group `chat.channel.{id}`.
+- Tests: `tests.test_chat_security` (perms, DM isolation, invite/ban, outsider 403, WS accept/reject). Full suite 51 OK (3 skipped).
+- Skipped: Scylla/search/voice/threads UI; world-linked P017 messaging.
+- Changed paths: `backend/apps/chat/`, `backend/config/asgi.py`, `backend/Dockerfile`, `backend/requirements.*`, `backend/config/settings/base.py`, `backend/config/urls.py`, `backend/tests/test_chat_security.py`, `TASKS.md`, `docs/*`.
+- Next exact action: resume P005 or other eligible todo.
+
+## 2026-09-15 — Chat typing indicators
+
+Discord-shaped ephemeral typing (official API: POST typing lasts 10s, Gateway `TYPING_START`; no durable DB).
+
+- `POST /api/v1/chat/channels/<id>/typing/` → 204; requires SEND_MESSAGES; broadcasts `typing.start`.
+- `GET …/typing/` → current typers (Redis/cache TTL; excludes self).
+- WS client may send `{"type":"typing.start"}`; same broadcast (`expires_in: 10`).
+- Tests cover REST + WS. Clients should refresh while typing and clear on expiry or `message.create` from that user.
+

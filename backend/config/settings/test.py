@@ -5,3 +5,10 @@ DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memor
 PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 CHANNEL_LAYERS = {'default': {'BACKEND': 'channels.layers.InMemoryChannelLayer'}}
 CELERY_TASK_ALWAYS_EAGER = True
+EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'parallel-test',
+    }
+}

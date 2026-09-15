@@ -29,7 +29,9 @@ npm --prefix frontend ci
 docker compose up -d --build
 ```
 
-This starts PostgreSQL 17, Redis 7.4, a one-shot `migrate` job, the API on <http://127.0.0.1:8000>, a Celery worker, and the Vite dev server on <http://127.0.0.1:5173>. The dev server proxies `/api` to the backend, so use port 5173 in the browser. Stop with `docker compose down`; add `-v` to discard the database volume.
+This starts PostgreSQL 17, Redis 7.4, a one-shot `migrate` job, the API (Daphne HTTP+WebSocket) on <http://127.0.0.1:8000>, a Celery worker, and the Vite dev server on <http://127.0.0.1:5173>. The dev server proxies `/api` to the backend, so use port 5173 in the browser. Stop with `docker compose down`; add `-v` to discard the database volume.
+
+Realtime chat (account-scoped servers/channels/DMs) is at `/api/v1/chat/` and `ws://…/ws/chat/channels/<id>/`.
 
 ## Checks
 

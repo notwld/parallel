@@ -1,22 +1,19 @@
 # Current project status
 
-Updated: 2026-09-14
+Updated: 2026-09-15
 
-Current task: none in progress. P000, P001, P002, and P046 are `done`. OpenRouter/LangChain/LangGraph stub is installed (D016); P019 is still `todo`. Next eligible backlog task is P003.
+Current task: none in progress. P050–P055 (realtime chat) `done`. P005 remains `todo` (interrupted draft). Next eligible: P005.
 
 ## Last verified
 
-- SQLite smoke: `26 tests, OK (skipped=1 live PG+Redis)`, including 4 AI provider tests with no network.
-- LangChain 1.4.0, LangGraph 1.2.11, langchain-openrouter 0.2.8 installed. Empty `OPENROUTER_API_KEY` selects `FakeProvider`.
-
-## What does not exist yet
-
-No public world/character APIs, login, audit/outbox, knowledge models, or live model calls. P019 is not done.
+- SQLite: `51 tests, OK (skipped=3)` including chat security + WS authz.
+- Daphne 4.2.3 installed; backend Dockerfile CMD uses Daphne; `ASGI_APPLICATION` + ProtocolTypeRouter wired.
+- Product module: `apps/chat` (servers/channels/DMs)—not branded Discord.
 
 ## Next step
 
-Set P003 to `in_progress` in `TASKS.md`. Read spec 2.3, 10.4, 10.6, 11.5.
+Resume P005 organizations (finish tests/migrations) or continue Parallel world backlog. Chat APIs under `/api/v1/chat/`; WS `ws/chat/channels/<id>/`.
 
 ## Git checkpoint
 
-Commit and push to `origin` (`https://github.com/notwld/parallel.git`) after this change.
+Large uncommitted tree (P003–P004, chat P050–P055, draft orgs). Commit only if asked.

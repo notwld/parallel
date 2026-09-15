@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 from django.contrib import admin
 from django.db import connection
-from django.urls import path
+from django.urls import include, path
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -57,5 +57,8 @@ def ready(request):
 urlpatterns = [
     path('api/v1/health/', health, name='health'),
     path('api/v1/ready/', ready, name='ready'),
+    path('api/v1/auth/', include('apps.accounts.urls')),
+    path('api/v1/worlds/', include('apps.worlds.urls')),
+    path('api/v1/chat/', include('apps.chat.urls')),
     path('admin/', admin.site.urls),
 ]
