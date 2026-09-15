@@ -2,18 +2,16 @@
 
 Updated: 2026-09-15
 
-Current task: none in progress. P050–P055 (realtime chat) `done`. P005 remains `todo` (interrupted draft). Next eligible: P005.
+Current task: none — P008 done.
 
-## Last verified
+## Last completed
 
-- SQLite: `51 tests, OK (skipped=3)` including chat security + WS authz.
-- Daphne 4.2.3 installed; backend Dockerfile CMD uses Daphne; `ASGI_APPLICATION` + ProtocolTypeRouter wired.
-- Product module: `apps/chat` (servers/channels/DMs)—not branded Discord.
+P008 — share/leak/verify provenance:
+- `share_claim`: shareability gate, Transmission + recipient KnowledgeEdge, optional evidence grant (PRIVATE→SHARED), weaker derived claim, idempotent retries.
+- `submit_verification_assessment`: character verification only; no Fact truth copy.
+- API: `POST …/intel/claims/<id>/share/` and `…/verify/` with Idempotency-Key.
+- Tests: `tests/test_transmission.py` (8) + leak suite still green.
 
 ## Next step
 
-Resume P005 organizations (finish tests/migrations) or continue Parallel world backlog. Chat APIs under `/api/v1/chat/`; WS `ws/chat/channels/<id>/`.
-
-## Git checkpoint
-
-Large uncommitted tree (P003–P004, chat P050–P055, draft orgs). Commit only if asked.
+Start P009 (typed actions + outbox dispatch). Set it `in_progress`, read spec 6.9 / 10.4–10.6.

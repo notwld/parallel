@@ -68,7 +68,7 @@ Implement signup, email verification/recovery, session login/logout, one chosen 
 Acceptance: sign in/out/recover works; revoked sessions fail; duplicate/concurrent joins do not allocate extra characters or office slots; paused/invite-only restrictions apply; profile excludes account identity; CSRF-negative and auth-rate-limit tests pass. Provider/email selection is a documented external prerequisite.
 
 ### P005 — Model organizations and enforce capabilities
-Status: todo
+Status: done
 Depends on: P003, P004
 Spec: 6.8, 11.2, 12.2
 Files: backend/apps/organizations/models.py, backend/apps/organizations/policies.py, backend/apps/organizations/services.py, backend/tests/test_org_authority.py
@@ -77,10 +77,8 @@ Create organization types, memberships, roles/capabilities, public profiles, inv
 
 Acceptance: ordinary member cannot publish as leader, outsider cannot read internal records, revocation takes effect immediately, and every referenced character belongs to the organization's world. Concurrent leadership allocation obeys authored constraints.
 
-Note: Interrupted 2026-09-15 for user-requested Discord Stage 1 chat (P050–P055). Draft code may exist under `backend/apps/organizations/`; finish tests/migrations when resumed.
-
 ### P006 — Implement truth, claims, knowledge, and evidence metadata
-Status: todo
+Status: done
 Depends on: P003, P005
 Spec: 3, 6.5, 11.2–11.4, 22.2
 Files: backend/apps/knowledge/models.py, backend/apps/knowledge/services.py, backend/tests/test_knowledge_models.py
@@ -90,7 +88,7 @@ Implement Fact, Claim, KnowledgeEdge, Evidence, ClaimEvidenceLink, and Transmiss
 Acceptance: false and contradictory claims persist without canonical truth in ordinary reads; invalid ownership/confidence/world references fail; provenance preserves the original source; indexes cover owner/world/time selectors. Binary upload is P014.
 
 ### P007 — Create audience projections and the first leak suite
-Status: todo
+Status: done
 Depends on: P006
 Spec: 2.3, 9.7, 12.2–12.3, 15.2
 Files: backend/apps/knowledge/selectors.py, backend/apps/knowledge/policies.py, backend/apps/knowledge/api.py, backend/tests/security/test_knowledge_leaks.py
@@ -100,7 +98,7 @@ Implement `project_claim_for_character(claim, character)` and intel/evidence sel
 Acceptance: A knows a canary secret; B and a different-world character cannot recover its text, IDs, truth state, or source through list/detail/search filters. Revoked access is denied. Test response bodies and nested metadata, not only visible UI labels. Reuse these projections in P020.
 
 ### P008 — Implement sharing, leaks, and verification provenance
-Status: todo
+Status: done
 Depends on: P007
 Spec: 3.4–3.6, 6.5–6.7, 22.2
 Files: backend/apps/knowledge/services.py, backend/apps/knowledge/api.py, backend/tests/test_transmission.py
@@ -544,3 +542,77 @@ Files: backend/apps/chat/, backend/tests/test_chat_security.py
 Invite join, ServerBan, ReadState, basic send rate limit; security suite.
 
 Acceptance: banned user cannot join/send; invite works; outsider suite fails closed.
+
+## Frontend surfaces for shipped backend APIs
+
+User-requested (2026-09-15): implement SPA pages for every backend module that already has HTTP/WS APIs. Organizations have models/services only — no REST yet; skip UI until an org API exists. Every async page uses layout-matched skeleton loaders (aria-busy region + hidden skeletons; no CLS).
+
+### FE060 — Shared query UI: skeletons, page shell, toast, auth gate
+Status: done
+Depends on: P004
+Spec: 12.2–12.4, 14.2; D018–D019
+Files: frontend/src/components/loading/, frontend/src/components/layout/, frontend/src/app/router.tsx
+
+Add layout-matched Skeleton blocks, `QueryState` (pending → skeleton, error → recovery, empty → teach), dark `AppShell` nav, Sonner toasts, session bootstrap (`ensureCsrf` + `/auth/me`), and route guards that soft-redirect without inventing privileges.
+
+Acceptance: every data page shows a skeleton that matches final layout; reduced-motion disables pulse; screen readers get one status, not skeleton noise.
+
+### FE061 — Auth and account surfaces
+Status: done
+Depends on: FE060
+Spec: 5.1, 12.4–12.5
+Files: frontend/src/features/auth/
+
+Login, signup, verify-email, password-reset request/confirm, account profile, preferences, session list/revoke. Real session APIs; CSRF on mutations; Query cache clear on logout.
+
+Acceptance: refresh keeps session; invalid login shows `{code,detail}`; revoke session works; skeletons on me/sessions.
+
+### FE062 — World landing, join, character
+Status: done
+Depends on: FE060, FE061
+Spec: 5.1–5.3, 6.1–6.3
+Files: frontend/src/features/worlds/
+
+Public landing for `/w/$slug`, join with Idempotency-Key, character panel. Hide invite-only roles as non-claimable. Skeletons for landing and character.
+
+Acceptance: already-joined and rejected-role cases handled; no canonical secrets in onboarding copy.
+
+### FE063 — Chat servers, channels, messages, typing
+Status: done
+Depends on: FE060, FE061
+Spec: docs/source/discord.md; D017
+Files: frontend/src/features/chat/
+
+Server list/create, channel list, message timeline, send, typing indicator, invite join. WebSocket subscribe when channel open; REST catch-up. Skeletons for server list and message pane.
+
+Acceptance: outsider cannot open foreign channels; typing shows ephemerally; reconnect refetches REST.
+
+### FE064 — Intel claims and evidence
+Status: done
+Depends on: FE060, FE061, FE062
+Spec: 6.5, 12.3, 15.2; D018
+Files: frontend/src/features/intel/
+
+World-scoped claim list/search, claim detail (`allowed_actions` + `can()`), evidence detail. Identical unavailable UX for 404. Skeletons mirror claim cards / detail.
+
+Acceptance: peer without knowledge sees empty list / not-found; no truth/`fact_id` fields rendered; confidential source display preserved.
+
+### FE065 — Wire routes and app navigation
+Status: done
+Depends on: FE061, FE062, FE063, FE064
+Spec: 14.2
+Files: frontend/src/app/router.tsx, frontend/src/components/layout/
+
+Register all routes; primary nav for Home / Worlds / Chat / Account (Intel under world). Build+typecheck green.
+
+Acceptance: keyboard focus visible; loading states on every authenticated data route.
+
+### FE066 — Production async HTTP, WebSocket, and client queues
+Status: done
+Depends on: FE060
+Spec: 13.1; D017; D019
+Files: frontend/src/api/, frontend/src/realtime/
+
+Axios + TanStack Query with AbortSignal cancellation, online `networkMode`, serial mutation scopes for chat sends, client idempotency keys. Channel WebSocket manager outside React lifecycle: exponential backoff + jitter, app ping/pong, bounded outbound queue, REST catch-up on reconnect. Hook via `useSyncExternalStore`.
+
+Acceptance: reconnect does not thundering-herd; after max attempts UI shows connection lost + manual retry; queued WS frames flush on open; REST refetch after reconnect; mutations aborted when queries unmount.

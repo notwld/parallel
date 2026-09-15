@@ -162,11 +162,13 @@ def allocate_leadership(
     )
     if target is None:
         raise OrgError('Target is not an active member.', code='not_member')
-    leaders = (
-        OrgMembership.objects.select_for_update()
-        .filter(organization=org, status=OrgMembership.Status.ACTIVE, capabilities__contains=CAP_LEADER)
-        .count()
+    # Count in Python: JSONField __contains is unreliable on SQLite smoke DB.
+    members = list(
+        OrgMembership.objects.select_for_update().filter(
+            organization=org, status=OrgMembership.Status.ACTIVE
+        )
     )
+    leaders = sum(1 for m in members if CAP_LEADER in (m.capabilities or []))
     if CAP_LEADER not in (target.capabilities or []) and leaders >= org.max_leaders:
         raise OrgError('No leadership slots remaining.', code='leader_full')
 

@@ -2,7 +2,7 @@
 
 A persistent multiplayer world where characters hold different, incomplete knowledge. Canonical truth is server-only; what a character believes, shares, or leaks is separate from what is true. See `docs/PRODUCT.md` for the Earth-2097 direction and `docs/ARCHITECTURE.md` for boundaries.
 
-Only the foundation exists today: a Django/DRF backend with a UUID account model, world/character tables, a React landing shell, and local services. LangChain/LangGraph/OpenRouter are installed; they stay idle unless `OPENROUTER_API_KEY` is set, and they are not used by any API yet. There are no gameplay features or login endpoints. `TASKS.md` is the authoritative backlog.
+Only the foundation exists today: a Django/DRF backend with UUID accounts, worlds/characters, knowledge/orgs/chat, and a React SPA shell (TanStack Query/Router, Axios, Tailwind/shadcn). LangChain/LangGraph/OpenRouter are installed; they stay idle unless `OPENROUTER_API_KEY` is set, and they are not used by any API yet. Full gameplay UI is still backlog. `TASKS.md` is the authoritative backlog.
 
 ## Agents and contributors start here
 

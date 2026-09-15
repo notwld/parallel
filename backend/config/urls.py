@@ -60,5 +60,6 @@ urlpatterns = [
     path('api/v1/auth/', include('apps.accounts.urls')),
     path('api/v1/worlds/', include('apps.worlds.urls')),
     path('api/v1/chat/', include('apps.chat.urls')),
+    path('api/v1/knowledge/', include('apps.knowledge.urls')),
     path('admin/', admin.site.urls),
 ]

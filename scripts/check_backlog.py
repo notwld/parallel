@@ -2,14 +2,16 @@
 from pathlib import Path
 import re
 
+TASK_ID = r'(?:P|FE)\d{3}'
+
 
 def main():
     root = Path(__file__).resolve().parent.parent
     source = (root / 'TASKS.md').read_text(encoding='utf-8')
     tasks = {}
     for block in re.split(r'^### ', source, flags=re.MULTILINE)[1:]:
-        task_id = re.match(r'(P\d{3})\b', block)
-        assert task_id, 'Every task heading needs a stable Pnnn ID'
+        task_id = re.match(rf'({TASK_ID})\b', block)
+        assert task_id, 'Every task heading needs a stable Pnnn or FEnnn ID'
         task_id = task_id.group(1)
         assert task_id not in tasks, f'Duplicate task: {task_id}'
         status = re.search(r'^Status: (\w+)$', block, re.MULTILINE)
@@ -17,8 +19,10 @@ def main():
         assert status and deps, f'Missing status/dependencies: {task_id}'
         assert status[1] in {'todo', 'in_progress', 'blocked', 'done', 'deferred'}, task_id
         dependency_text = deps[1]
-        assert dependency_text == 'none' or re.fullmatch(r'P\d{3}(, P\d{3})*', dependency_text), task_id
-        tasks[task_id] = (status[1], re.findall(r'P\d{3}', dependency_text))
+        assert dependency_text == 'none' or re.fullmatch(
+            rf'{TASK_ID}(, {TASK_ID})*', dependency_text
+        ), task_id
+        tasks[task_id] = (status[1], re.findall(TASK_ID, dependency_text))
     assert tasks, 'No tasks found'
     visited, active = set(), set()
 

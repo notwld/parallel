@@ -106,3 +106,74 @@ Discord-shaped ephemeral typing (official API: POST typing lasts 10s, Gateway `T
 - WS client may send `{"type":"typing.start"}`; same broadcast (`expires_in: 10`).
 - Tests cover REST + WS. Clients should refresh while typing and clear on expiry or `message.create` from that user.
 
+## 2026-09-15 — P005 completed
+
+World-scoped organizations with capability policies.
+
+- Models: Organization, OrgMembership, OrgInvitation; cross-world character rejected.
+- Policies: publish_as_org / read_internal / manage / leader; revocation clears caps immediately.
+- Services use `record_world_mutation`; leadership via `select_for_update` + in-Python leader count (SQLite-safe).
+- Tests: `test_org_authority` — member cannot publish as org, outsider denied internal, revoke, cross-world, second leader rejected; PG concurrent leadership OK.
+- Full suite: 58 OK (4 skipped). Next: P006 knowledge models.
+
+## 2026-09-15 — P006 completed
+
+Epistemic core models (Fact/Claim/KnowledgeEdge/Evidence/ClaimEvidenceLink/Transmission).
+
+- Fact is server-only (no `apps.knowledge.serializers`). Claim has optional `linked_fact` never included in `ordinary_claim_read`.
+- Mutate creates derived claim + Transmission; source proposition unchanged.
+- XOR owner (character|org), confidence 0–1, world consistency, evidence relations supports/contradicts/context.
+- Indexes: owner/acquired_at, claim+owner, world+verification/created.
+- Tests: 7 OK. Full suite 65 OK (4 skipped). Binary upload deferred (P014).
+- Next: P007 audience projections + leak suite.
+
+## 2026-09-15 — P007 completed
+
+Audience allowlist projections and first knowledge leak suite.
+
+- `project_claim_for_character` builds allowlisted dicts (no pop-secrets). Confidential sources → `Confidential source` without ref.
+- World membership before character/object access; missing vs unauthorized → identical 404 body.
+- Intel API under `/api/v1/knowledge/worlds/<slug>/intel/…` (list/search, claim detail, evidence detail).
+- `tests/security/test_knowledge_leaks.py`: canary hidden from peer list/detail/search/evidence and foreign world; revoke denies; owner sees claim without fact ids.
+- Next: P008 sharing/transmission services.
+
+## 2026-09-15 — Frontend foundation + authz/filter decisions
+
+- D018: capability-based backend authz; FE mirrors `allowed_actions` only.
+- D019: Vite/React19, Tailwind v4 + shadcn, Axios+CSRF, TanStack Query/Router, Zod, RHF; django-filter defaults.
+- Structure: `src/app`, `src/api`, `src/features/{home,auth,worlds}`, `src/components/{ui,layout}`.
+- CORS: `django-cors-headers`, credentialed origins from env; tests in `tests/test_cors.py`.
+- Build: frontend typecheck+build OK. Skipped: full P012 OpenAPI client, P013 onboarding UI, Zustand.
+- Next: P008 or wire auth/world routes on this shell.
+
+## 2026-09-15 — FE async/WS layer + auth surfaces
+
+- FE066: ChannelSocket (backoff+jitter, ping/pong, outbound queue), TanStack Query online mode + mutation scopes, idempotency helper.
+- FE060/061: QueryState/skeletons, AppShell, login/signup/reset/account+sessions.
+- Placeholders for `/w/$worldSlug` and `/chat` until FE062–063.
+- Build: `npm run build` OK.
+- Next: FE062 world landing/join, FE063 chat+WS, FE064 intel.
+
+## 2026-09-15 — FE062–FE065 pages for shipped APIs
+
+Used [API inventory](f11deff3-78e4-4625-a8cf-f2512b0dafe6) to scope UI to existing HTTP/WS only (no org UI).
+
+- Worlds: landing/join/character (`Idempotency-Key`, claimable roles only).
+- Chat: servers/channels/messages + ChannelSocket catch-up; ConnectionBanner.
+- Intel: claim list/search, claim + evidence detail (audience fields only).
+- Router: `/w/$slug`, intel routes, `/chat`, `/chat/servers/$serverId`.
+- `check_backlog.py` accepts FEnnn task IDs.
+- Verify: `npm --prefix frontend run build` OK (typecheck + vite).
+- Next: unblocked backend (e.g. P008) or live-backend FE polish; no org UI until org REST.
+
+## 2026-09-15 — P008 completed
+
+Sharing, derived rumors, and verification assessments without leaking canonical truth.
+
+- `share_claim`: rejects private/off-record; confidential/shareable/public OK; Transmission + recipient edge atomically with audit/outbox; optional evidence SHARED + custody; weaker `derived_proposition` keeps source claim intact; idempotent key returns same transmission.
+- `submit_verification_assessment`: updates character edge verification (+ optional link assessment); outbox payload has no fact ids.
+- API share/verify under intel claims; unknown/unauthorized → identical 404.
+- Policies: `can_redistribute`; SHARED evidence access; projection `allowed_actions` omits share when blocked.
+- Verify: `manage.py test tests.test_transmission tests.security.test_knowledge_leaks` → 12 OK (SQLite smoke).
+- Next: P009 typed actions + outbox dispatch.
+
